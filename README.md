@@ -1,5 +1,10 @@
-# all-in-one-hackazon
+# Reason for this fork
+The original work created by [mutzel](https://hub.docker.com/r/mutzel/all-in-one-hackazon/) creates a new password on every start of the container (by executing the `start.sh` file). \
+I could not verify if this is intentional or just a side product. The only thing I know is, that restarting the original container will result in a different password being displayed, whilst the old password is still the only valid one.
 
+Since I don't need changing passwords anyways (at least for my current use case), I added a check for existing passwords, and did some smaller fixes whilst at it.
+
+# About
 Run a docker container include hackazon, apache, mysql, and nodejs with express server
 
 This work is based on https://github.com/cmutzel/all-in-one-hackazon
@@ -7,9 +12,42 @@ This work is based on https://github.com/cmutzel/all-in-one-hackazon
 # Instructions
 
 To build the container:
-docker build --rm -t bepsoccer/all-in-one-hackazon .
+```
+docker build --rm --tag all-in-one-hackazon .
+```
 
 then run via: 
-docker run --name hackazon -d -p 80:80 bepsoccer/all-in-one-hackazon
+```
+docker run --name hackazon -d -p 80:80 --name hackazon all-in-one-hackazon
+```
 
-Login into hackazon at http:// (( your host here... )) and begin configuring...  You can just select to use the existing db password as it is set in the startup script.  The admin password will be the same as the db password and is echoed at startup and can be found in /hackazon-db-pw.txt.
+you can now access your hackazon instance via `http://<host e.g. 'localhost'>`
+# Login and credentials
+you can access your docker logs with following command
+```
+docker logs hackazon
+```
+
+inside your logs you'll find your login credentials 
+
+```sh
+---------- LOGIN INFORMATION ----------
+mysql: root@<mysql password>
+hackazon: admin@<hackazon password>
+---------------------------------------
+```
+
+**NOTE**: passwords will be create once (semi-randomly) on startup. These are obviously not secure and should not be used outside hackazon. \
+If you prefer a static password instead, you'll have to replace following two lines (located in `.scripts/start.sh`) with your own password.
+```sh
+MYSQL_PASSWORD=`date +%N|sha256sum|base64|head -c 10`
+...
+HACKAZON_PASSWORD=`date +%N|sha256sum|base64|head -c 10`
+
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+MYSQL_PASSWORD="my_really_secure_password"
+...
+HACKAZON_PASSWORD="my_really_secure_password"
+```
+Rebuild your container afterwards.

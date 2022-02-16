@@ -4,18 +4,46 @@
 #and files need to be touched to overcome overlay file system issues on Mac and Windows
 find /var/lib/mysql -type f -exec touch {} \; && /usr/bin/mysqld_safe & 
 sleep 10s
-# Here we generate random passwords
+
+# generate MYSQL information
 MYSQL_USER="root"
-MYSQL_PASSWORD=`date +%s|sha256sum|base64|head -c 10`
 HACKAZON_DB="hackazon"
 HACKAZON_USER="hackazon"
-HACKAZON_PASSWORD=`date +%s|sha256sum|base64|head -c 10`
+
+# if mysql password is already set load the existing one
+mysql_password_file="/mysql-root-pw.txt"
+if grep -sq "." $mysql_password_file
+then
+    MYSQL_PASSWORD=$(cat $mysql_password_file)
+else
+    # generate random looking password
+    MYSQL_PASSWORD=`date +%s|sha256sum|base64|head -c 10`
+    echo $MYSQL_PASSWORD > $mysql_password_file
+fi
+
+# generate hackazon information
+HACKAZON_PASSWORD=`date +%N|sha256sum|base64|head -c 10`
+
+# if hackazon password is already set load the existing one
+hackazon_password_file="/hackazon-db-pw.txt"
+if grep -sq "." $hackazon_password_file
+then
+    HACKAZON_PASSWORD=$(cat $hackazon_password_file)
+else
+    # generate random looking password
+    HACKAZON_PASSWORD=`date +%N|sha256sum|base64|head -c 10`
+    echo $HACKAZON_PASSWORD > $hackazon_password_file
+fi
 HASHED_PASSWORD=`php /passwordHash.php $HACKAZON_PASSWORD`
 
-#This is so the passwords show up in logs. 
-echo hackazon password: $HACKAZON_PASSWORD
-echo $MYSQL_PASSWORD > /mysql-root-pw.txt
-echo $HACKAZON_PASSWORD > /hackazon-db-pw.txt
+
+# log account information
+echo
+echo ---------- LOGIN INFORMATION ----------
+echo mysql: $MYSQL_USER@$MYSQL_PASSWORD
+echo hackazon: admin@$HACKAZON_PASSWORD
+echo ---------------------------------------
+echo
 
 #set DB password in db.php
 sed -i "s/yourdbpass/$HACKAZON_PASSWORD/" /var/www/hackazon/assets/config/db.php
