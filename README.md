@@ -10,18 +10,26 @@ Run a docker container include hackazon, apache, mysql, and nodejs with express 
 This work is based on https://github.com/cmutzel/all-in-one-hackazon
 
 # Instructions
+1. You cant either...
 
-To build the container:
-```
-docker build --rm --tag all-in-one-hackazon .
-```
+   ...clone my repository from dockerhub
+   ```
+   docker pull dieschdel/all-in-one-hackazon
+   ```
+   
+   ...or build the image yourself (after cloning this repo):
+   ```
+   docker build --rm --tag all-in-one-hackazon .
+   ```
 
-then run via: 
+2. then run via: 
 ```
 docker run --name hackazon -d -p 80:80 --name hackazon all-in-one-hackazon
 ```
 
-you can now access your hackazon instance via `http://<host e.g. 'localhost'>`
+3. you can now access your hackazon instance via `http://<host e.g. 'localhost'>`
+
+
 # Login and credentials
 you can access your docker logs with following command
 ```
