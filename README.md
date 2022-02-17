@@ -1,5 +1,5 @@
 # Reason for this fork
-The original work created by [mutzel](https://hub.docker.com/r/mutzel/all-in-one-hackazon/) creates a new password on every start of the container (by executing the `start.sh` file). \
+The original work created by [cmutzel](https://github.com/cmutzel) creates a new password on every start of the container (by executing the `start.sh` file). \
 I could not verify if this is intentional or just a side product. The only thing I know is, that restarting the original container will result in a different password being displayed, whilst the old password is still the only valid one.
 
 Since I don't need changing passwords anyways (at least for my current use case), I added a check for existing passwords, and did some smaller fixes whilst at it.
